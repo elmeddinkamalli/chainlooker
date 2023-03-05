@@ -10,75 +10,101 @@ const _web3 = {
   [process.env.FTM_CHAIN_ID]: new Web3(process.env.FTM_RPC),
 }
 
+const transfer721EventInputs = [
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'from',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'to',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'uint256',
+    name: 'tokenId',
+    type: 'uint256',
+  },
+]
+const transfer721EventInputsWithSignarure = [
+  {
+    indexed: true,
+    internalType: 'string',
+    name: 'Transfer',
+    type: 'string',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'from',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'to',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'uint256',
+    name: 'tokenId',
+    type: 'uint256',
+  },
+]
+const transfer721EventObject = {
+  anonymous: false,
+  inputs: transfer721EventInputs,
+  name: 'Transfer',
+  type: 'event',
+}
+
 const cronTasks = {}
 
 cronTasks.analyze = async (req, res, chainId) => {
   try {
-    const transfer721EventInputs = [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'from',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'to',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'tokenId',
-        type: 'uint256',
-      }
-    ]
-    const transfer721EventObject = {
-      anonymous: false,
-      inputs: transfer721EventInputs,
-      name: 'Transfer',
-      type: 'event',
-    }
-    const blockData = await _web3[chainId].eth.getBlock(27752636)
-    // console.log(blockData);
+    // Fetch block data
+    const blockData = await _web3[chainId].eth.getBlock(27772218)
+
+    // Create Hex encoded event abi
     const transfer721EncodedTopic = _web3[chainId].eth.abi.encodeEventSignature(
       transfer721EventObject,
     )
-    // console.log(blockData)
 
     if (blockData) {
       if (blockData.transactions.length) {
+        // Loop through all transactions in block data
         for (let i = 0; i < blockData.transactions.length; i++) {
-        //   console.log('i is', i)
+          // Fetch transaction receipt data to loop through all the event logs
           const transactionData = await _web3[
             chainId
           ].eth.getTransactionReceipt(blockData.transactions[i])
-          //   console.log(transactionData);
-
           if (transactionData.logs.length) {
+            // Loop through all the logs inside a transaction
             for (let k = 0; k < transactionData.logs.length; k++) {
-            // console.log('k is', k)
-
               const logs = transactionData.logs[k]
 
               if (logs.topics.length) {
+                // Loop through all topics inside transaction logs
                 for (let l = 0; l < logs.topics.length; l++) {
-        //   console.log('ll is', l)
-
                   const topic = logs.topics[l]
+
+                  // Check if topic signature is equals to needed event signature
                   if (topic == transfer721EncodedTopic) {
-                    // console.log(transactionData.logs[k])
-                    // console.log( transfer721EventInputs,
-                    //     transactionData.logs[k].data,
-                    //     transactionData.logs[k].topics);
                     try {
+                      // Decode event log
                       const decodedLog = await _web3[chainId].eth.abi.decodeLog(
-                        transfer721EventInputs,
+                        transfer721EventInputsWithSignarure,
                         transactionData.logs[k].data,
                         transactionData.logs[k].topics,
-                      );
-                      console.log(decodedLog)
+                      )
+
+                      // Logging the contract address and decoded event data
+                      console.log(transactionData.logs[k].address, decodedLog)
                     } catch (error) {
                       console.log("coudn't get decoded log", error.message)
                       continue
@@ -91,10 +117,6 @@ cronTasks.analyze = async (req, res, chainId) => {
         }
       }
     }
-
-    // await _web3[chainId].getPastEvents("allEvents", {fromBlock: blockNumber, toBlock: blockNumber})
-
-    console.log('blockData')
   } catch (err) {
     console.log(err.message)
     utils.echoLog(
