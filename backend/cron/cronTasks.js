@@ -1,6 +1,12 @@
 const Web3 = require('web3')
 const BlockModel = require('../modules/block/blockModel')
 const utils = require('../helper/utils')
+const {
+  encodeEventSignature,
+  getTransactionReceipt,
+  transfer721EventInputsWithSignarure,
+  decodeLogTopics,
+} = require('../helper/rpcHelper.js')
 
 const _web3 = {
   [process.env.ETH_CHAIN_ID]: new Web3(process.env.ETH_RPC),
@@ -10,71 +16,23 @@ const _web3 = {
   [process.env.FTM_CHAIN_ID]: new Web3(process.env.FTM_RPC),
 }
 
-const transfer721EventInputs = [
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'from',
-    type: 'address',
-  },
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'to',
-    type: 'address',
-  },
-  {
-    indexed: true,
-    internalType: 'uint256',
-    name: 'tokenId',
-    type: 'uint256',
-  },
-]
-const transfer721EventInputsWithSignarure = [
-  {
-    indexed: true,
-    internalType: 'string',
-    name: 'Transfer',
-    type: 'string',
-  },
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'from',
-    type: 'address',
-  },
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'to',
-    type: 'address',
-  },
-  {
-    indexed: true,
-    internalType: 'uint256',
-    name: 'tokenId',
-    type: 'uint256',
-  },
-]
-const transfer721EventObject = {
-  anonymous: false,
-  inputs: transfer721EventInputs,
-  name: 'Transfer',
-  type: 'event',
-}
-
 const cronTasks = {}
 
 cronTasks.analyze = async (req, res, chainId) => {
   try {
-    const getBlockNumber = await _web3[chainId].eth.getBlockNumber();
-    console.log("Last block number is ", getBlockNumber);
+    const processedBorderBlockNumber = await BlockModel.findOne({
+      chainId,
+    })
+
+    const getBlockNumber = await _web3[chainId].eth.getBlockNumber()
+    console.log('Last block number is ', getBlockNumber)
     // Fetch block data
     const blockData = await _web3[chainId].eth.getBlock(getBlockNumber)
 
     // Create Hex encoded event abi
-    const transfer721EncodedTopic = _web3[chainId].eth.abi.encodeEventSignature(
-      transfer721EventObject,
+    const transfer721EncodedTopic = await encodeEventSignature(
+      _web3[chainId],
+      'transfer721',
     )
 
     if (blockData) {
@@ -82,9 +40,10 @@ cronTasks.analyze = async (req, res, chainId) => {
         // Loop through all transactions in block data
         for (let i = 0; i < blockData.transactions.length; i++) {
           // Fetch transaction receipt data to loop through all the event logs
-          const transactionData = await _web3[
-            chainId
-          ].eth.getTransactionReceipt(blockData.transactions[i])
+          const transactionData = await getTransactionReceipt(
+            _web3[chainId],
+            blockData.transactions[i],
+          )
           if (transactionData.logs.length) {
             // Loop through all the logs inside a transaction
             for (let k = 0; k < transactionData.logs.length; k++) {
@@ -99,8 +58,9 @@ cronTasks.analyze = async (req, res, chainId) => {
                   if (topic == transfer721EncodedTopic) {
                     try {
                       // Decode event log
-                      const decodedLog = await _web3[chainId].eth.abi.decodeLog(
-                        transfer721EventInputsWithSignarure,
+                      const decodedLog = await decodeLogTopics(
+                        _web3[chainId],
+                        'transfer721EventsWithSignature',
                         transactionData.logs[k].data,
                         transactionData.logs[k].topics,
                       )
@@ -118,6 +78,16 @@ cronTasks.analyze = async (req, res, chainId) => {
           }
         }
       }
+    }
+
+    if (!processedBorderBlockNumber) {
+      await new BlockModel({
+        transfer: getBlockNumber,
+        chainId,
+      }).save()
+    } else {
+      processedBorderBlockNumber.transfer = getBlockNumber
+      await processedBorderBlockNumber.save()
     }
   } catch (err) {
     console.log(err.message)
