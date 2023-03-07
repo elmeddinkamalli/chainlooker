@@ -26,7 +26,7 @@ cronTasks.analyze = async (req, res, chainId) => {
     const getBlockNumber = await _web3[chainId].eth.getBlockNumber()
     console.log('Last block number is ', getBlockNumber)
     // Fetch block data
-    const blockData = await _web3[chainId].eth.getBlock(27836773)
+    const blockData = await _web3[chainId].eth.getBlock(27838255)
 
     // Create Hex encoded event abi
     const transfer721EncodedTopic = await encodeEventSignature(
@@ -43,6 +43,39 @@ cronTasks.analyze = async (req, res, chainId) => {
       _web3[chainId],
       'transferBatch1155',
     )
+
+    const getLogs = async (topic, transactionDataLogs) => {
+      let abiName;
+      switch(topic) {
+        case transfer721EncodedTopic:
+          abiName = 'transfer721EventsWithSignature'
+          break
+        case transferSingle1155EncodedTopic:
+          abiName = 'transferSingle1155EventsWithSignature'
+          break
+        case transferBatch1155EncodedTopic:
+          abiName = 'transferBatch1155EventsWithSignature'
+          break
+        default:
+          break
+      }
+      // Decode event log
+      if(abiName){
+        try{
+          const decodedLog = await decodeLogTopics(
+          _web3[chainId],
+          abiName,
+          transactionDataLogs.data,
+          transactionDataLogs.topics,
+          )
+
+          // Logging the contract address and decoded event data
+          return [transactionDataLogs.address, decodedLog];
+        }catch(error){
+          // return ['ERROR', error.message]
+        }
+      }
+    }
 
     if (blockData) {
       if (blockData.transactions.length) {
@@ -63,56 +96,67 @@ cronTasks.analyze = async (req, res, chainId) => {
                 for (let l = 0; l < logs.topics.length; l++) {
                   const topic = logs.topics[l]
 
-                  // Check if topic signature is equals to needed event signature
-                  if (topic == transfer721EncodedTopic) {
-                    try {
-                      // Decode event log
-                      const decodedLog = await decodeLogTopics(
-                        _web3[chainId],
-                        'transfer721EventsWithSignature',
-                        transactionData.logs[k].data,
-                        transactionData.logs[k].topics,
-                      )
-
-                      // Logging the contract address and decoded event data
-                      console.log(transactionData.logs[k].address, decodedLog)
-                    } catch (error) {
-                      console.log("coudn't get decoded log", error.message)
-                      continue
+                  try {
+                    const transactionLogs = await getLogs(topic, transactionData.logs[k])
+                    if(transactionLogs){
+                      if (transactionLogs[0] == 'ERROR') continue;
+                      console.log(transactionLogs);
                     }
+                  } catch (error) {
+                    console.log("coudn't get decoded log", error.message)
+                    continue
                   }
 
-                  else if (topic == transferSingle1155EncodedTopic) {
-                    try {
-                      const decodedLog = await decodeLogTopics(
-                        _web3[chainId],
-                        'transferSingle1155EventsWithSignature',
-                        transactionData.logs[k].data,
-                        transactionData.logs[k].topics,
-                      );
+                  // // Check if topic signature is equals to needed event signature
+                  // if (topic == transfer721EncodedTopic) {
+                  //   try {
+                  //     // Decode event log
+                  //     const decodedLog = await decodeLogTopics(
+                  //       _web3[chainId],
+                  //       'transfer721EventsWithSignature',
+                  //       transactionData.logs[k].data,
+                  //       transactionData.logs[k].topics,
+                  //     )
 
-                      console.log(transactionData.logs[k].address, decodedLog);
-                    } catch (error) {
-                      console.log("coudn't get decoded log", error.message);
-                      continue;
-                    }
-                  }
+                  //     // Logging the contract address and decoded event data
+                  //     console.log(transactionData.logs[k].address, decodedLog)
+                  //   } catch (error) {
+                  //     console.log("coudn't get decoded log", error.message)
+                  //     continue
+                  //   }
+                  // }
 
-                  else if (topic == transferBatch1155EncodedTopic) {
-                    try {
-                      const decodedLog = await decodeLogTopics(
-                        _web3[chainId],
-                        'transferBatch1155EventsWithSignature',
-                        transactionData.logs[k].data,
-                        transactionData.logs[k].topics,
-                      );
+                  // else if (topic == transferSingle1155EncodedTopic) {
+                  //   try {
+                  //     const decodedLog = await decodeLogTopics(
+                  //       _web3[chainId],
+                  //       'transferSingle1155EventsWithSignature',
+                  //       transactionData.logs[k].data,
+                  //       transactionData.logs[k].topics,
+                  //     );
 
-                      console.log(transactionData.logs[k].address, decodedLog);
-                    } catch (error) {
-                      console.log("coudn't get decoded log", error.message);
-                      continue;
-                    }
-                  }
+                  //     console.log(transactionData.logs[k].address, decodedLog);
+                  //   } catch (error) {
+                  //     console.log("coudn't get decoded log", error.message);
+                  //     continue;
+                  //   }
+                  // }
+
+                  // else if (topic == transferBatch1155EncodedTopic) {
+                  //   try {
+                  //     const decodedLog = await decodeLogTopics(
+                  //       _web3[chainId],
+                  //       'transferBatch1155EventsWithSignature',
+                  //       transactionData.logs[k].data,
+                  //       transactionData.logs[k].topics,
+                  //     );
+
+                  //     console.log(transactionData.logs[k].address, decodedLog);
+                  //   } catch (error) {
+                  //     console.log("coudn't get decoded log", error.message);
+                  //     continue;
+                  //   }
+                  // }
                 }
               }
             }
