@@ -2,22 +2,6 @@ const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
-// If we want store all owned nft in one owner object:
-
-// const nftsSchema = new Schema(
-//     {
-//         nftId: {
-//             type: Schema.Types.ObjectId,
-//             ref: "nfts",
-//             required: true,
-//         },
-//         amount: {
-//             type: Number,
-//             default: 0,
-//         },
-//     }
-// );
-
 const ownerModelSchema = new Schema(
     {
         address: {
@@ -30,16 +14,6 @@ const ownerModelSchema = new Schema(
             lowercase: true,
             required: true,
         },
-        nftId: {
-            type: Schema.Types.ObjectId,
-            ref: "nfts",
-            required: true,
-        },
-        amount: {
-            type: Number,
-            default: 0,
-        },
-        // nfts: [nftsSchema],
     },
     {
         timestamps: true,
@@ -50,7 +24,7 @@ const ownerModelSchema = new Schema(
 );
 
 ownerModelSchema.index(
-    { chainId: 1, address: 1, nftId: 1 },
+    { chainId: 1, address: 1, },
     { unique: true, },
 );
 
