@@ -67,8 +67,10 @@ const cronTasks = {}
 
 cronTasks.analyze = async (req, res, chainId) => {
   try {
+    const getBlockNumber = await _web3[chainId].eth.getBlockNumber();
+    console.log("Last block number is ", getBlockNumber);
     // Fetch block data
-    const blockData = await _web3[chainId].eth.getBlock(27772218)
+    const blockData = await _web3[chainId].eth.getBlock(getBlockNumber)
 
     // Create Hex encoded event abi
     const transfer721EncodedTopic = _web3[chainId].eth.abi.encodeEventSignature(
