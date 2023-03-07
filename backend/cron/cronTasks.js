@@ -4,7 +4,6 @@ const utils = require('../helper/utils')
 const {
   encodeEventSignature,
   getTransactionReceipt,
-  transfer721EventInputsWithSignarure,
   decodeLogTopics,
 } = require('../helper/rpcHelper.js')
 
@@ -15,85 +14,6 @@ const _web3 = {
   [process.env.MATIC_CHAIN_ID]: new Web3(process.env.MATIC_RPC),
   [process.env.FTM_CHAIN_ID]: new Web3(process.env.FTM_RPC),
 }
-
-const transferSingle1155EventInputs = [
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'operator',
-    type: 'address',
-  },
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'from',
-    type: 'address',
-  },
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'to',
-    type: 'address',
-  },
-  {
-    indexed: false,
-    internalType: 'uint256',
-    name: 'id',
-    type: 'uint256',
-  },
-  {
-    indexed: false,
-    internalType: 'uint256',
-    name: 'value',
-    type: 'uint256',
-  },
-];
-
-const transferSingle1155EventInputsWithSignature = [
-  {
-    indexed: true,
-    internalType: 'string',
-    name: 'TransferSingle',
-    type: 'string',
-  },
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'operator',
-    type: 'address',
-  },
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'from',
-    type: 'address',
-  },
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'to',
-    type: 'address',
-  },
-  {
-    indexed: false,
-    internalType: 'uint256',
-    name: 'id',
-    type: 'uint256',
-  },
-  {
-    indexed: false,
-    internalType: 'uint256',
-    name: 'value',
-    type: 'uint256',
-  },
-];
-
-const transferSingle1155EventObject = {
-  anonymous: false,
-  inputs: transferSingle1155EventInputs,
-  name: 'TransferSingle',
-  type: 'event',
-};
 
 const cronTasks = {}
 
@@ -107,7 +27,6 @@ cronTasks.analyze = async (req, res, chainId) => {
     console.log('Last block number is ', getBlockNumber)
     // Fetch block data
     const blockData = await _web3[chainId].eth.getBlock(27836773)
-    console.log(blockData.transactions.length);
 
     // Create Hex encoded event abi
     const transfer721EncodedTopic = await encodeEventSignature(
@@ -115,9 +34,15 @@ cronTasks.analyze = async (req, res, chainId) => {
       'transfer721',
     )
 
-    const transferSingle1155EncodedTopic = _web3[chainId].eth.abi.encodeEventSignature(
-      transferSingle1155EventObject,
-    );
+    const transferSingle1155EncodedTopic = await encodeEventSignature(
+      _web3[chainId],
+      'transferSingle1155',
+    )
+
+    const transferBatch1155EncodedTopic = await encodeEventSignature(
+      _web3[chainId],
+      'transferBatch1155',
+    )
 
     if (blockData) {
       if (blockData.transactions.length) {
@@ -159,8 +84,25 @@ cronTasks.analyze = async (req, res, chainId) => {
 
                   else if (topic == transferSingle1155EncodedTopic) {
                     try {
-                      const decodedLog = await _web3[chainId].eth.abi.decodeLog(
-                        transferSingle1155EventInputsWithSignature,
+                      const decodedLog = await decodeLogTopics(
+                        _web3[chainId],
+                        'transferSingle1155EventsWithSignature',
+                        transactionData.logs[k].data,
+                        transactionData.logs[k].topics,
+                      );
+
+                      console.log(transactionData.logs[k].address, decodedLog);
+                    } catch (error) {
+                      console.log("coudn't get decoded log", error.message);
+                      continue;
+                    }
+                  }
+
+                  else if (topic == transferBatch1155EncodedTopic) {
+                    try {
+                      const decodedLog = await decodeLogTopics(
+                        _web3[chainId],
+                        'transferBatch1155EventsWithSignature',
                         transactionData.logs[k].data,
                         transactionData.logs[k].topics,
                       );
