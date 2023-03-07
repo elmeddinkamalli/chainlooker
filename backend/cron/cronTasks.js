@@ -63,6 +63,85 @@ const transfer721EventObject = {
   type: 'event',
 }
 
+const transferSingle1155EventInputs = [
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'operator',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'from',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'to',
+    type: 'address',
+  },
+  {
+    indexed: false,
+    internalType: 'uint256',
+    name: 'id',
+    type: 'uint256',
+  },
+  {
+    indexed: false,
+    internalType: 'uint256',
+    name: 'value',
+    type: 'uint256',
+  },
+];
+
+const transferSingle1155EventInputsWithSignature = [
+  {
+    indexed: true,
+    internalType: 'string',
+    name: 'TransferSingle',
+    type: 'string',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'operator',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'from',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'to',
+    type: 'address',
+  },
+  {
+    indexed: false,
+    internalType: 'uint256',
+    name: 'id',
+    type: 'uint256',
+  },
+  {
+    indexed: false,
+    internalType: 'uint256',
+    name: 'value',
+    type: 'uint256',
+  },
+];
+
+const transferSingle1155EventObject = {
+  anonymous: false,
+  inputs: transferSingle1155EventInputs,
+  name: 'TransferSingle',
+  type: 'event',
+};
+
 const cronTasks = {}
 
 cronTasks.analyze = async (req, res, chainId) => {
@@ -70,12 +149,17 @@ cronTasks.analyze = async (req, res, chainId) => {
     const getBlockNumber = await _web3[chainId].eth.getBlockNumber();
     console.log("Last block number is ", getBlockNumber);
     // Fetch block data
-    const blockData = await _web3[chainId].eth.getBlock(getBlockNumber)
+    const blockData = await _web3[chainId].eth.getBlock(27836773)
+    console.log(blockData.transactions.length);
 
     // Create Hex encoded event abi
     const transfer721EncodedTopic = _web3[chainId].eth.abi.encodeEventSignature(
       transfer721EventObject,
     )
+
+    const transferSingle1155EncodedTopic = _web3[chainId].eth.abi.encodeEventSignature(
+      transferSingle1155EventObject,
+    );
 
     if (blockData) {
       if (blockData.transactions.length) {
@@ -110,6 +194,21 @@ cronTasks.analyze = async (req, res, chainId) => {
                     } catch (error) {
                       console.log("coudn't get decoded log", error.message)
                       continue
+                    }
+                  }
+
+                  else if (topic == transferSingle1155EncodedTopic) {
+                    try {
+                      const decodedLog = await _web3[chainId].eth.abi.decodeLog(
+                        transferSingle1155EventInputsWithSignature,
+                        transactionData.logs[k].data,
+                        transactionData.logs[k].topics,
+                      );
+
+                      console.log(transactionData.logs[k].address, decodedLog);
+                    } catch (error) {
+                      console.log("coudn't get decoded log", error.message);
+                      continue;
                     }
                   }
                 }
