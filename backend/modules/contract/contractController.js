@@ -1,7 +1,7 @@
-const Utils = require('../../helper/utils')
-const { query } = require('winston')
-const contractModel = require('./contractModel')
-const ContractCtr = {}
+const Utils = require("../../helper/utils");
+const { query } = require("winston");
+const contractModel = require("./contractModel");
+const ContractCtr = {};
 
 // add new category
 ContractCtr.addNewContractByTnxReceipt = async (transaction, chainId) => {
@@ -9,16 +9,16 @@ ContractCtr.addNewContractByTnxReceipt = async (transaction, chainId) => {
     const existingContract = await contractModel.findOne({
       chainId,
       address: transaction.contractAddress.toLowerCase(),
-    })
+    });
 
     if (!existingContract) {
       await contractModel({
         chainId,
         address: transaction.contractAddress,
         birthBlock: transaction.blockNumber,
-      }).save()
+      }).save();
     }
   }
-}
+};
 
-module.exports = ContractCtr
+module.exports = ContractCtr;

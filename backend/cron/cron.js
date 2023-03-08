@@ -1,6 +1,10 @@
 const cron = require("node-cron");
 const cronTasks = require("./cronTasks");
+global.reenteranceGuard = false;
 
 cron.schedule("*/10 * * * * *", async (req, res) => {
-    cronTasks.analyze(req, res, process.env.BNB_CHAIN_ID)
+  if (!reenteranceGuard) {
+    reenteranceGuard = true;
+    cronTasks.analyze(req, res, process.env.BNB_CHAIN_ID);
+  }
 });

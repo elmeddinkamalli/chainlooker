@@ -1,9 +1,15 @@
-require('dotenv').config()
-require('../globals.js')
-require('../config/database.js')
-const { getTransactionReceipt, getLogs } = require('../helper/rpcHelper.js');
-const blockModel = require('../modules/block/blockModel.js');
-const { addNewContractByTnxReceipt } = require('../modules/contract/contractController.js');
+require("dotenv").config();
+require("../globals.js");
+require("../config/database.js");
+const { getTransactionReceipt, getLogs } = require("../helper/rpcHelper.js");
+const blockModel = require("../modules/block/blockModel.js");
+const {
+  addNewContractByTnxReceipt,
+} = require("../modules/contract/contractController.js");
+const { storeNft } = require("../modules/nft/nftController.js");
+const {
+  storeTransaction,
+} = require("../modules/transaction/transactionController.js");
 const arguments = process.argv;
 const chainId = arguments[2];
 let startBlock = Number(arguments[3]);
@@ -12,33 +18,28 @@ const ethereum20161231 = 2910000;
 
 async function boot() {
   try {
-    const getBlockNumber = await global.VALID_RPCS[chainId].eth.getBlockNumber()
+    const getBlockNumber = await global.VALID_RPCS[
+      chainId
+    ].eth.getBlockNumber();
     const savedBlock = await blockModel.findOne({
-        chainId
-    })
-    if(startBlock == 0){
+      chainId,
+    });
+    if (startBlock == 0) {
       startBlock = savedBlock.transfer;
     }
 
-    let offsetBlock = startBlock+offset;
+    let offsetBlock = startBlock + offset;
 
     if (startBlock < getBlockNumber) {
-      console.log(
-        'Offset is:',
-        offset,
-      )
+      console.log("Offset is:", offset);
 
-      for (
-        startBlock;
-        startBlock < getBlockNumber;
-        startBlock++
-      ) {
-        console.log('Processing block number is:', startBlock)
+      for (startBlock; startBlock < getBlockNumber; startBlock++) {
+        console.log("Processing block number is:", startBlock);
         // Fetch block data
         const blockData = await global.VALID_RPCS[chainId].eth.getBlock(
-          startBlock,
-        )
-        console.log(blockData.transactions.length)
+          startBlock
+        );
+        console.log(blockData.transactions.length);
 
         if (blockData) {
           if (blockData.transactions.length) {
@@ -47,33 +48,45 @@ async function boot() {
               // Fetch transaction receipt data to loop through all the event logs
               const transactionData = await getTransactionReceipt(
                 global.VALID_RPCS[chainId],
-                blockData.transactions[i],
-              )
+                blockData.transactions[i]
+              );
 
-              await addNewContractByTnxReceipt(transactionData, chainId)
+              await addNewContractByTnxReceipt(transactionData, chainId);
 
               if (transactionData.logs.length) {
                 // Loop through all the logs inside a transaction
                 for (let k = 0; k < transactionData.logs.length; k++) {
-                  const logs = transactionData.logs[k]
+                  const logs = transactionData.logs[k];
 
                   if (logs.topics.length) {
                     // Loop through all topics inside transaction logs
                     for (let l = 0; l < logs.topics.length; l++) {
-
                       // Check if topic signature is equals to needed event signature
                       try {
                         const transactionLogs = await getLogs(
                           global.VALID_RPCS[chainId],
                           logs.topics[l],
-                          transactionData.logs[k],
-                        )
+                          transactionData.logs[k]
+                        );
                         if (transactionLogs) {
-                          console.log(transactionLogs)
+                          const tnxId = await storeTransaction(
+                            transactionData,
+                            chainId
+                          );
+                          await storeNft(
+                            tnxId,
+                            logs.address,
+                            chainId,
+                            transactionLogs
+                          );
+                          console.log(
+                            "NFT and Owners added successfully 🎉 🎉 🎉"
+                          );
                         }
                       } catch (error) {
-                        // console.log("coudn't get decoded log", error.message)
-                        continue
+                        sendSlack(`Error creating NFT and Owners. Hash: ${transactionData.transactionHash}`);
+                        // console.log("coudn't get decoded log", error.message);
+                        continue;
                       }
                     }
                   }
@@ -83,17 +96,17 @@ async function boot() {
           }
         }
 
-        if(offsetBlock == startBlock){
-            offsetBlock = startBlock+offset;
-            if (!savedBlock) {
-                await new blockModel({
-                  transfer: startBlock,
-                  chainId,
-                }).save()
-              } else {
-                savedBlock.transfer = startBlock
-                await savedBlock.save()
-              }
+        if (offsetBlock == startBlock) {
+          offsetBlock = startBlock + offset;
+          if (!savedBlock) {
+            await new blockModel({
+              transfer: startBlock,
+              chainId,
+            }).save();
+          } else {
+            savedBlock.transfer = startBlock;
+            await savedBlock.save();
+          }
         }
       }
 
@@ -104,12 +117,12 @@ async function boot() {
     console.log("Invalid block number");
     return false;
   } catch (err) {
-    console.log(err.message)
+    console.log(err.message);
     utils.echoLog(
-      `error in adding new event for chain id ${chainId}: ${err.message}`,
-    )
+      `error in adding new event for chain id ${chainId}: ${err.message}`
+    );
   }
-  return true
+  return true;
 }
 
-return boot()
+return boot();
