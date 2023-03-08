@@ -1,11 +1,13 @@
 const Web3 = require('web3')
 const { encodeEventSignature } = require("./helper/rpcHelper")
 global.VALID_CHAINS = [
+    process.env.ETH_MAINNET_CHAIN_ID,
     process.env.ETH_CHAIN_ID,
     process.env.BNB_CHAIN_ID
 ]
 
 global.VALID_RPCS = {
+    [process.env.ETH_MAINNET_CHAIN_ID]: new Web3(process.env.ETH_MAINNET_RPC),
     [process.env.ETH_CHAIN_ID]: new Web3(process.env.ETH_RPC),
     [process.env.BNB_MAINNET_CHAIN_ID]: new Web3(process.env.BNB_MAINNET_RPC),
     [process.env.BNB_CHAIN_ID]: new Web3(process.env.BNB_RPC),
