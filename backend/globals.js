@@ -5,6 +5,7 @@ global.VALID_CHAINS = [
   process.env.ETH_MAINNET_CHAIN_ID,
   process.env.ETH_CHAIN_ID,
   process.env.BNB_CHAIN_ID,
+  process.env.BNB_MAINNET_CHAIN_ID,
 ];
 
 global.VALID_RPCS = {

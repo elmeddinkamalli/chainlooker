@@ -85,7 +85,7 @@ async function boot() {
                         }
                       } catch (error) {
                         sendSlack(
-                          `Error creating NFT and Owners. Hash: ${transactionData.transactionHash}`
+                          `Error creating NFT and Owners. Chain: ${chainId}, Hash: ${transactionData.transactionHash}`
                         );
                         // console.log("coudn't get decoded log", error.message);
                         continue;
