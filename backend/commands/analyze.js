@@ -6,8 +6,8 @@ const blockModel = require('../modules/block/blockModel.js');
 const { addNewContractByTnxReceipt } = require('../modules/contract/contractController.js');
 const arguments = process.argv;
 const chainId = arguments[2];
-let startBlock = arguments[3];
-const offset = arguments[4];
+let startBlock = Number(arguments[3]);
+const offset = Number(arguments[4]);
 const ethereum20161231 = 2910000;
 
 const transferSingle1155EventInputs = [
