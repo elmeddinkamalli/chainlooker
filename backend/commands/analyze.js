@@ -120,9 +120,6 @@ async function boot() {
     return false;
   } catch (err) {
     console.log(err.message);
-    utils.echoLog(
-      `error in adding new event for chain id ${chainId}: ${err.message}`
-    );
   }
   return true;
 }
