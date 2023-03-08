@@ -84,7 +84,9 @@ cronTasks.analyze = async (req, res, chainId) => {
                           );
                         }
                       } catch (error) {
-                        sendSlack(`Error creating NFT and Owners. Hash: ${transactionData.transactionHash}`);
+                        sendSlack(
+                          `Error creating NFT and Owners. Hash: ${transactionData.transactionHash}`
+                        );
                         // console.log("coudn't get decoded log", error, proccessingBlockNumber, transactionData);
                         continue;
                       }
