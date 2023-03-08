@@ -39,10 +39,10 @@ async function boot() {
         const blockData = await global.VALID_RPCS[chainId].eth.getBlock(
           startBlock
         );
-        console.log(blockData.transactions.length);
-
+        
         if (blockData) {
-          if (blockData.transactions.length) {
+          if (blockData.transactions && blockData.transactions.length) {
+            console.log(blockData.transactions.length);
             // Loop through all transactions in block data
             for (let i = 0; i < blockData.transactions.length; i++) {
               // Fetch transaction receipt data to loop through all the event logs
