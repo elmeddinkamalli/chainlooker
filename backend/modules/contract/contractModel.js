@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 
 const contractModelSchema = new Schema(
     {
-        contractAddress: {
+        address: {
             type: String,
             lowercase: true,
             required: true,
@@ -40,7 +40,7 @@ const contractModelSchema = new Schema(
 );
 
 contractModelSchema.index(
-    { chainId: 1, contractAddress: 1 },
+    { chainId: 1, address: 1 },
     { unique: true, },
 );
 
