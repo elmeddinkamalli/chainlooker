@@ -53,12 +53,12 @@ async function boot() {
 
               await addNewContractByTnxReceipt(transactionData, chainId);
 
-              if (transactionData.logs.length) {
+              if (transactionData.logs && transactionData.logs.length) {
                 // Loop through all the logs inside a transaction
                 for (let k = 0; k < transactionData.logs.length; k++) {
                   const logs = transactionData.logs[k];
 
-                  if (logs.topics.length) {
+                  if (logs.topics && logs.topics.length) {
                     // Loop through all topics inside transaction logs
                     for (let l = 0; l < logs.topics.length; l++) {
                       // Check if topic signature is equals to needed event signature
