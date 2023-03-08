@@ -4,7 +4,6 @@ const utils = require('../helper/utils')
 const {
   encodeEventSignature,
   getTransactionReceipt,
-  transfer721EventInputsWithSignarure,
   decodeLogTopics,
 } = require('../helper/rpcHelper.js')
 const { addNewContractByTnxReceipt } = require('../modules/contract/contractController')
@@ -55,7 +54,7 @@ cronTasks.analyze = async (req, res, chainId) => {
     })
 
     const getBlockNumber = await _web3[chainId].eth.getBlockNumber()
-
+    
     if(processedBorderBlockNumber.transfer < getBlockNumber){
       console.log("Offset is:", getBlockNumber - processedBorderBlockNumber.transfer);
 

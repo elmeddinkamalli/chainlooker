@@ -55,6 +55,164 @@ rpcHelper.transfer721EventObject = {
   type: 'event',
 }
 
+rpcHelper.transferSingle1155EventInputs = [
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'operator',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'from',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'to',
+    type: 'address',
+  },
+  {
+    indexed: false,
+    internalType: 'uint256',
+    name: 'id',
+    type: 'uint256',
+  },
+  {
+    indexed: false,
+    internalType: 'uint256',
+    name: 'value',
+    type: 'uint256',
+  },
+];
+
+rpcHelper.transferSingle1155EventInputsWithSignature = [
+  {
+    indexed: true,
+    internalType: 'string',
+    name: 'TransferSingle',
+    type: 'string',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'operator',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'from',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'to',
+    type: 'address',
+  },
+  {
+    indexed: false,
+    internalType: 'uint256',
+    name: 'id',
+    type: 'uint256',
+  },
+  {
+    indexed: false,
+    internalType: 'uint256',
+    name: 'value',
+    type: 'uint256',
+  },
+];
+
+rpcHelper.transferSingle1155EventObject = {
+  anonymous: false,
+  inputs: rpcHelper.transferSingle1155EventInputs,
+  name: 'TransferSingle',
+  type: 'event',
+};
+
+rpcHelper.transferBatch1155EventInputs = [
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'operator',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'from',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'to',
+    type: 'address',
+  },
+  {
+    indexed: false,
+    internalType: 'uint256[]',
+    name: 'ids',
+    type: 'uint256[]',
+  },
+  {
+    indexed: false,
+    internalType: 'uint256[]',
+    name: 'values',
+    type: 'uint256[]',
+  },
+];
+
+rpcHelper.transferBatch1155EventInputsWithSignature = [
+  {
+    indexed: true,
+    internalType: 'string',
+    name: 'TransferBatch',
+    type: 'string',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'operator',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'from',
+    type: 'address',
+  },
+  {
+    indexed: true,
+    internalType: 'address',
+    name: 'to',
+    type: 'address',
+  },
+  {
+    indexed: false,
+    internalType: 'uint256[]',
+    name: 'ids',
+    type: 'uint256[]',
+  },
+  {
+    indexed: false,
+    internalType: 'uint256[]',
+    name: 'values',
+    type: 'uint256[]',
+  },
+];
+
+rpcHelper.transferBatch1155EventObject = {
+  anonymous: false,
+  inputs: rpcHelper.transferBatch1155EventInputs,
+  name: 'TransferBatch',
+  type: 'event',
+};
+
 rpcHelper.getEventAbiByName = (Name) => {
   switch (Name) {
     case 'transfer721':
@@ -63,7 +221,18 @@ rpcHelper.getEventAbiByName = (Name) => {
     case 'transfer721EventsWithSignature':
       return rpcHelper.transfer721EventInputsWithSignarure
       break
-
+    case 'transferSingle1155':
+      return rpcHelper.transferSingle1155EventObject
+      break
+    case 'transferSingle1155EventsWithSignature':
+      return rpcHelper.transferSingle1155EventInputsWithSignature
+      break
+    case 'transferBatch1155':
+      return rpcHelper.transferBatch1155EventObject
+      break
+    case 'transferBatch1155EventsWithSignature':
+      return rpcHelper.transferBatch1155EventInputsWithSignature
+      break
     default:
       break
   }
