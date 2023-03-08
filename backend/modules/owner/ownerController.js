@@ -41,7 +41,6 @@ OwnerCtr.ownNft = async (eventSimplified, nftId) => {
     await nftOwnerModel({
       ownerId: senderId,
       nftId,
-      amount: eventSimplified["amount"],
     }).save();
   }
 
