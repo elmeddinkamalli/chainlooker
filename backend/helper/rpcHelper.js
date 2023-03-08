@@ -86,7 +86,7 @@ rpcHelper.transferSingle1155EventInputs = [
     name: 'value',
     type: 'uint256',
   },
-];
+]
 
 rpcHelper.transferSingle1155EventInputsWithSignature = [
   {
@@ -125,14 +125,14 @@ rpcHelper.transferSingle1155EventInputsWithSignature = [
     name: 'value',
     type: 'uint256',
   },
-];
+]
 
 rpcHelper.transferSingle1155EventObject = {
   anonymous: false,
   inputs: rpcHelper.transferSingle1155EventInputs,
   name: 'TransferSingle',
   type: 'event',
-};
+}
 
 rpcHelper.transferBatch1155EventInputs = [
   {
@@ -165,7 +165,7 @@ rpcHelper.transferBatch1155EventInputs = [
     name: 'values',
     type: 'uint256[]',
   },
-];
+]
 
 rpcHelper.transferBatch1155EventInputsWithSignature = [
   {
@@ -204,14 +204,14 @@ rpcHelper.transferBatch1155EventInputsWithSignature = [
     name: 'values',
     type: 'uint256[]',
   },
-];
+]
 
 rpcHelper.transferBatch1155EventObject = {
   anonymous: false,
   inputs: rpcHelper.transferBatch1155EventInputs,
   name: 'TransferBatch',
   type: 'event',
-};
+}
 
 rpcHelper.getEventAbiByName = (Name) => {
   switch (Name) {
@@ -254,6 +254,23 @@ rpcHelper.decodeLogTopics = async (Provider, Event, DataHex, Topics) => {
     DataHex,
     Topics,
   )
+}
+
+rpcHelper.getLogs = async (Provider, topic, transactionDataLogs) => {
+  try {
+    if (global.VALID_EVENT_SIGNATURES.includes(topic)) {
+      const decodedLog = await rpcHelper.decodeLogTopics(
+        Provider,
+        `${global.VALID_EVENT_SIGNATURE_NAMES[topic]}EventsWithSignature`,
+        transactionDataLogs.data,
+        transactionDataLogs.topics,
+      )
+
+      return decodedLog
+    }
+  } catch (error) {}
+
+  return
 }
 
 module.exports = rpcHelper

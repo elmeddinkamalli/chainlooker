@@ -2,8 +2,8 @@ const express = require("express");
 global._ = require("lodash");
 require("./winston");
 require("./database.js");
+require("../globals.js");
 require("../cron/cron");
-const l10n = require("jm-ez-l10n");
 
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -22,10 +22,6 @@ function exitHandler(options) {
   process.exit();
 }
 process.on("SIGINT", exitHandler.bind(null, { cleanup: true }));
-
-// language response json
-// l10n.setTranslationsFile("en", "./language/translation.en.json");
-app.use(l10n.enableL10NExpress);
 
 app.set("port", process.env.PORT);
 app.use(bodyParser.json({ limit: "1gb" }));
