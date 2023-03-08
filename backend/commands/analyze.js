@@ -51,9 +51,8 @@ async function boot() {
                 blockData.transactions[i]
               );
 
-              await addNewContractByTnxReceipt(transactionData, chainId);
-
               if (transactionData && transactionData.logs && transactionData.logs.length) {
+                await addNewContractByTnxReceipt(transactionData, chainId);
                 // Loop through all the logs inside a transaction
                 for (let k = 0; k < transactionData.logs.length; k++) {
                   const logs = transactionData.logs[k];
