@@ -17,86 +17,36 @@ const _web3 = {
   [process.env.FTM_CHAIN_ID]: new Web3(process.env.FTM_RPC),
 }
 
-const transferSingle1155EventInputs = [
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'operator',
-    type: 'address',
-  },
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'from',
-    type: 'address',
-  },
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'to',
-    type: 'address',
-  },
-  {
-    indexed: false,
-    internalType: 'uint256',
-    name: 'id',
-    type: 'uint256',
-  },
-  {
-    indexed: false,
-    internalType: 'uint256',
-    name: 'value',
-    type: 'uint256',
-  },
-];
-
-const transferSingle1155EventInputsWithSignature = [
-  {
-    indexed: true,
-    internalType: 'string',
-    name: 'TransferSingle',
-    type: 'string',
-  },
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'operator',
-    type: 'address',
-  },
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'from',
-    type: 'address',
-  },
-  {
-    indexed: true,
-    internalType: 'address',
-    name: 'to',
-    type: 'address',
-  },
-  {
-    indexed: false,
-    internalType: 'uint256',
-    name: 'id',
-    type: 'uint256',
-  },
-  {
-    indexed: false,
-    internalType: 'uint256',
-    name: 'value',
-    type: 'uint256',
-  },
-];
-
-const transferSingle1155EventObject = {
-  anonymous: false,
-  inputs: transferSingle1155EventInputs,
-  name: 'TransferSingle',
-  type: 'event',
-};
-
 const cronTasks = {}
+
+const getLogs = async (Provider, event, topic, transactionDataLogs) => {
+  let abiName;
+  // Create Hex encoded event abi
+  const eventEncodedTopic = await encodeEventSignature(
+    Provider,
+    event,
+  )
+
+  if(eventEncodedTopic == topic){
+    abiName = `${event}EventsWithSignature`;
+  }
+
+  // Decode event log
+  try{
+    const decodedLog = await decodeLogTopics(
+    Provider,
+    abiName,
+    transactionDataLogs.data,
+    transactionDataLogs.topics,
+    )
+
+    // Logging the contract address and decoded event data
+    return [transactionDataLogs.address, decodedLog];
+  }catch(error){
+    console.log(error);
+    // return ['ERROR', error.message]
+  }
+}
 
 cronTasks.analyze = async (req, res, chainId) => {
   try {
@@ -115,16 +65,6 @@ cronTasks.analyze = async (req, res, chainId) => {
         // Fetch block data
         const blockData = await _web3[chainId].eth.getBlock(proccessingBlockNumber)
         console.log(blockData.transactions.length);
-    
-        // Create Hex encoded event abi
-        const transfer721EncodedTopic = await encodeEventSignature(
-          _web3[chainId],
-          'transfer721',
-        )
-    
-        const transferSingle1155EncodedTopic = _web3[chainId].eth.abi.encodeEventSignature(
-          transferSingle1155EventObject,
-        );
     
         if (blockData) {
           if (blockData.transactions.length) {
@@ -149,37 +89,14 @@ cronTasks.analyze = async (req, res, chainId) => {
                       const topic = logs.topics[l]
     
                       // Check if topic signature is equals to needed event signature
-                      if (topic == transfer721EncodedTopic) {
-                        try {
-                          // Decode event log
-                          const decodedLog = await decodeLogTopics(
-                            _web3[chainId],
-                            'transfer721EventsWithSignature',
-                            transactionData.logs[k].data,
-                            transactionData.logs[k].topics,
-                          )
-    
-                          // Logging the contract address and decoded event data
-                          console.log(transactionData.logs[k].address, decodedLog)
-                        } catch (error) {
-                          console.log("coudn't get decoded log", error.message)
-                          continue
+                      try {
+                        const transactionLogs = await getLogs(topic, transactionData.logs[k])
+                        if(transactionLogs){
+                          console.log(transactionLogs);
                         }
-                      }
-    
-                      else if (topic == transferSingle1155EncodedTopic) {
-                        try {
-                          const decodedLog = await _web3[chainId].eth.abi.decodeLog(
-                            transferSingle1155EventInputsWithSignature,
-                            transactionData.logs[k].data,
-                            transactionData.logs[k].topics,
-                          );
-    
-                          console.log(transactionData.logs[k].address, decodedLog);
-                        } catch (error) {
-                          console.log("coudn't get decoded log", error.message);
-                          continue;
-                        }
+                      } catch (error) {
+                        console.log("coudn't get decoded log", error.message)
+                        continue
                       }
                     }
                   }
