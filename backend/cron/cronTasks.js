@@ -10,6 +10,7 @@ const {
 const { storeNft } = require('../modules/nft/nftController')
 const { sendSlack } = require('../services/slack.service')
 const nftModel = require('../modules/nft/nftModel')
+const contractModel = require('../modules/contract/contractModel')
 
 const cronTasks = {}
 
@@ -132,9 +133,27 @@ cronTasks.sendReport = async (req, res) => {
       },
     },
   ])
+  const contractCount = await contractModel.aggregate([
+    {
+      $match: {},
+    },
+    {
+      $group: {
+        _id: '$chainId',
+        count: {
+          $sum: 1,
+        },
+      },
+    },
+  ])
 
+  message += "NFT Count \n";
   for (let index = 0; index < nftCounts.length; index++) {
-    message += `Chain ${nftCounts[index]._id}: ${nftCounts[index].count} \n`
+    message += `Chain ${nftCounts[index]._id}:  ${nftCounts[index].count} \n`
+  }
+  message += "\nContract Count \n";
+  for (let index = 0; index < contractCount.length; index++) {
+    message += `Chain ${contractCount[index]._id}:  ${contractCount[index].count} \n`
   }
 
   sendSlack(message);
