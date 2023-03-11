@@ -8,6 +8,7 @@ global.VALID_CHAINS = [
   process.env.BNB_MAINNET_CHAIN_ID,
   process.env.POLYGON_CHAIN_ID,
   process.env.AVAX_CHAIN_ID,
+  process.env.FTM_MAINNET_CHAIN_ID,
 ];
 
 global.VALID_RPCS = {
@@ -17,6 +18,7 @@ global.VALID_RPCS = {
   [process.env.BNB_CHAIN_ID]: new Web3(process.env.BNB_RPC),
   [process.env.POLYGON_CHAIN_ID]: new Web3(process.env.POLYGON_RPC),
   [process.env.AVAX_CHAIN_ID]: new Web3(process.env.AVAX_RPC),
+  [process.env.FTM_MAINNET_CHAIN_ID]: new Web3(process.env.FTM_MAINNET_RPC),
 };
 
 global.VALID_EVENTS = [

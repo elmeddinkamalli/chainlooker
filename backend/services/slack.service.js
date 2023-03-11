@@ -2,11 +2,13 @@ const request = require("request");
 const url = process.env.SLACK_WEBHOOK;
 
 function sendSlack(data = "Test") {
-  var str = String(`${JSON.stringify(data)}`);
-  // var btoas = btoa(str);
-  // var atobs = atob(btoas);
-  // data = atobs;
-  data = str;
+  if(!data instanceof String){
+    var str = String(`${JSON.stringify(data)}`);
+    // var btoas = btoa(str);
+    // var atobs = atob(btoas);
+    // data = atobs;
+    data = str;
+  }
   try {
     request.post(
       {
