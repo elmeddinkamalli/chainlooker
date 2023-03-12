@@ -11,6 +11,7 @@ const { storeNft } = require('../modules/nft/nftController')
 const { sendSlack } = require('../services/slack.service')
 const nftModel = require('../modules/nft/nftModel')
 const contractModel = require('../modules/contract/contractModel')
+const blockModel = require('../modules/block/blockModel')
 
 const cronTasks = {}
 
@@ -146,14 +147,23 @@ cronTasks.sendReport = async (req, res) => {
       },
     },
   ])
+  const blocks = await blockModel.find({}).select({
+    chainId: 1,
+    transfer: 1,
+    _id: 0
+  });
 
-  message += "NFT Count \n";
+  message += "Chains \n";
+  for (let index = 0; index < blocks.length; index++) {
+    message += `${global.CHAIN_NAMES[blocks[index].chainId]}:  ${blocks[index].transfer} \n`
+  }
+  message += "\nNFT Count \n";
   for (let index = 0; index < nftCounts.length; index++) {
-    message += `Chain ${nftCounts[index]._id}:  ${nftCounts[index].count} \n`
+    message += `${global.CHAIN_NAMES[nftCounts[index]._id]}:  ${nftCounts[index].count} \n`
   }
   message += "\nContract Count \n";
   for (let index = 0; index < contractCount.length; index++) {
-    message += `Chain ${contractCount[index]._id}:  ${contractCount[index].count} \n`
+    message += `${global.CHAIN_NAMES[contractCount[index]._id]}:  ${contractCount[index].count} \n`
   }
 
   sendSlack(message);

@@ -21,6 +21,16 @@ global.VALID_RPCS = {
   [process.env.FTM_MAINNET_CHAIN_ID]: new Web3(process.env.FTM_MAINNET_RPC),
 };
 
+global.CHAIN_NAMES = {
+  [process.env.ETH_MAINNET_CHAIN_ID]: "ETH Mainnet",
+  [process.env.ETH_CHAIN_ID]: "Goerli",
+  [process.env.BNB_MAINNET_CHAIN_ID]: "BNB Mainnet",
+  [process.env.BNB_CHAIN_ID]: "BNB Testnet",
+  [process.env.POLYGON_CHAIN_ID]: "Polygon Mainnet",
+  [process.env.AVAX_CHAIN_ID]: "Avalanche Mainnet",
+  [process.env.FTM_MAINNET_CHAIN_ID]: "Fantom Mainnet",
+};
+
 global.VALID_EVENTS = [
   "transfer721",
   "transferSingle1155",
