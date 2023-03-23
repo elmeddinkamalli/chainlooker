@@ -119,8 +119,10 @@ async function boot() {
     console.log("Invalid block number");
     return false;
   } catch (err) {
-    savedBlock.transfer = startBlock;
-    await savedBlock.save();
+    if(startBlock != 0){
+      savedBlock.transfer = startBlock;
+      await savedBlock.save();
+    }
     console.log(err.message);
   }
   return true;
