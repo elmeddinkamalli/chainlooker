@@ -20,14 +20,14 @@ async function boot() {
   const savedBlock = await blockModel.findOne({
     chainId,
   });
-  
+
   try {
-    const getBlockNumber = await global.VALID_RPCS[
-      chainId
-    ].eth.getBlockNumber();
     if (startBlock == 0) {
       startBlock = savedBlock.transfer;
     }
+    const getBlockNumber = await global.VALID_RPCS[
+      chainId
+    ].eth.getBlockNumber();
 
     let offsetBlock = startBlock + offset;
 
