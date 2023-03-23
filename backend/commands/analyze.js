@@ -17,13 +17,14 @@ const offset = Number(arguments[4]);
 const ethereum20161231 = 2910000;
 
 async function boot() {
+  const savedBlock = await blockModel.findOne({
+    chainId,
+  });
+  
   try {
     const getBlockNumber = await global.VALID_RPCS[
       chainId
     ].eth.getBlockNumber();
-    const savedBlock = await blockModel.findOne({
-      chainId,
-    });
     if (startBlock == 0) {
       startBlock = savedBlock.transfer;
     }
@@ -118,6 +119,8 @@ async function boot() {
     console.log("Invalid block number");
     return false;
   } catch (err) {
+    savedBlock.transfer = startBlock;
+    await savedBlock.save();
     console.log(err.message);
   }
   return true;
