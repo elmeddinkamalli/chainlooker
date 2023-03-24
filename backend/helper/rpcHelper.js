@@ -245,7 +245,13 @@ rpcHelper.encodeEventSignature = async (Provider, Event) => {
 };
 
 rpcHelper.getTransactionReceipt = async (Provider, Hash) => {
-  return await Provider.eth.getTransactionReceipt(Hash);
+  try {
+    return await Provider.eth.getTransactionReceipt(Hash);
+  } catch (error) {
+    if(error.message != "Number can only safely store up to 53 bits"){
+      throw Error(error)
+    }
+  }
 };
 
 rpcHelper.decodeLogTopics = async (Provider, Event, DataHex, Topics) => {
