@@ -1,6 +1,7 @@
 require("dotenv").config();
 require("../globals.js");
 require("../config/database.js");
+const { sendSlack } = require('../services/slack.service')
 const { getTransactionReceipt, getLogs } = require("../helper/rpcHelper.js");
 const blockModel = require("../modules/block/blockModel.js");
 const {
