@@ -86,10 +86,10 @@ async function boot() {
                         }
                       } catch (error) {
                         sendSlack(
-                          `Error creating NFT and Owners. Chain: ${chainId}, Hash: ${transactionData.transactionHash}`
+                          `Error creating NFT and Owners. Chain: Stopping the proccess until the next mongodb restart`
                         );
                         // console.log("coudn't get decoded log", error.message);
-                        continue;
+                        return;
                       }
                     }
                   }
