@@ -85,6 +85,7 @@ async function boot() {
                           );
                         }
                       } catch (error) {
+                        console.log("Waiting for Mongodb check");
                         sendSlack(
                           `Error creating NFT and Owners. Chain: Stopping the proccess until the next mongodb restart`
                         );
