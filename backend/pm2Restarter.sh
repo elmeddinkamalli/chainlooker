@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source .env
+
 declare -A pm2s
 pm2s[7]="/root/.pm2/logs/Fantom-out.log"
 pm2s[8]="/root/.pm2/logs/BNB-Mainnet-out.log"
@@ -12,7 +14,7 @@ for key in ${!pm2s[@]}; do
     line=$( tail -n 1 ${pm2s[${key}]} )
     if [[ "${line}" != *"ChainlookerLog"* ]]; then
         lineStringified=$(node /var/www/htdocs/chainlooker/backend/stringfier.js "${line}")
-        $(curl -X POST -H 'Content-type: application/json' --data '{"text":"'"Error: ${lineStringified} \nPID: $key restarted"'"}' https://hooks.slack.com/services/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)
+        $(curl -X POST -H 'Content-type: application/json' --data '{"text":"'"Error: ${lineStringified} \nPID: $key restarted"'"}' $SLACK_WEBHOOK)
         $(/root/.nvm/versions/node/v15.14.0/bin/pm2 restart ${key})
     fi
 done
