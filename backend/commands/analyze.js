@@ -33,10 +33,10 @@ async function boot() {
     let offsetBlock = startBlock + offset;
 
     if (startBlock < getBlockNumber) {
-      console.log("Offset is:", offset);
+      console.log("ChainlookerLog: Offset is:", offset);
 
       for (startBlock; startBlock < getBlockNumber; startBlock++) {
-        console.log("Processing block number is:", startBlock);
+        console.log("ChainlookerLog: Processing block number is:", startBlock);
         // Fetch block data
         const blockData = await global.VALID_RPCS[chainId].eth.getBlock(
           startBlock
@@ -44,7 +44,7 @@ async function boot() {
         
         if (blockData) {
           if (blockData.transactions && blockData.transactions.length) {
-            console.log(blockData.transactions.length);
+            console.log(`ChainlookerLog: ${blockData.transactions.length}`);
             // Loop through all transactions in block data
             for (let i = 0; i < blockData.transactions.length; i++) {
               // Fetch transaction receipt data to loop through all the event logs
@@ -81,7 +81,7 @@ async function boot() {
                             transactionLogs
                           );
                           console.log(
-                            "NFT and Owners added successfully 🎉 🎉 🎉"
+                            "ChainlookerLog: NFT and Owners added successfully 🎉 🎉 🎉"
                           );
                         }
                       } catch (error) {

@@ -10,7 +10,7 @@ possibleErrors=("Invalid JSON RPC response: {\"size\":0,\"timeout\":0}" "connect
 
 for key in ${!pm2s[@]}; do
     line=$( tail -n 1 ${pm2s[${key}]} )
-    if [[ " ${possibleErrors[*]} " =~ " ${line} " ]]; then
+    if [[ "${line}" != *"ChainlookerLog"* ]]; then
         lineStringified=$(node /root/stringfier.js "${line}")
         $(curl -X POST -H 'Content-type: application/json' --data '{"text":"'"Error: ${lineStringified} \nPID: $key restarted"'"}' https://hooks.slack.com/services/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)
         $(/root/.nvm/versions/node/v15.14.0/bin/pm2 restart ${key})

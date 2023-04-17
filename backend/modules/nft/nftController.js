@@ -36,7 +36,7 @@ NftCtr.storeNft = async (transactionId, contractAddress, chainId, eventLog) => {
       };
     }
   } else {
-    console.log("Invalid event");
+    console.log("ChainlookerLog: Invalid event");
     return eventSimplified;
   }
 
@@ -63,7 +63,7 @@ NftCtr.storeNft = async (transactionId, contractAddress, chainId, eventLog) => {
         minterAddress: minter,
         totalAmount: minter ? Number(eventSimplified[i]["amount"]) : 0,
       }).save();
-      console.log("New NFT created 🎉 🎉 🎉");
+      console.log("ChainlookerLog: New NFT created 🎉 🎉 🎉");
     }
 
     await ownNft(eventSimplified[i], nftId);
