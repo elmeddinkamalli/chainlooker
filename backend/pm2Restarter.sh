@@ -12,7 +12,7 @@ for key in ${!pm2s[@]}; do
     line=$( tail -n 1 ${pm2s[${key}]} )
     if [[ "${line}" != *"ChainlookerLog"* ]]; then
         lineStringified=$(node /var/www/htdocs/chainlooker/backend/stringfier.js "${line}")
-        $(curl -X POST -H 'Content-type: application/json' --data '{"text":"'"Error: ${lineStringified} \nPID: $key restarted"'"}' https://hooks.slack.com/services/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)
+        $(curl -X POST -H 'Content-type: application/json' --data '{"text":"'"Error: ${lineStringified} \nPID: $key restarted"'"}' https://hooks.slack.com/services/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)
         $(/root/.nvm/versions/node/v15.14.0/bin/pm2 restart ${key})
     fi
 done
