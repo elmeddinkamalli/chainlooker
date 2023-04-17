@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source .env
+source /var/www/htdocs/chainlooker/backend/.env
 
 declare -A pm2s
 pm2s[7]="/root/.pm2/logs/Fantom-out.log"

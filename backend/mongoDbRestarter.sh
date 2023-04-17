@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source .env
+source /var/www/htdocs/chainlooker/backend/.env
 
 ########################################################
 
