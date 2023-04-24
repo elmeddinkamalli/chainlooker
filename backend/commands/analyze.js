@@ -72,6 +72,8 @@ async function boot() {
                         if (transactionLogs) {
                           const tnxId = await storeTransaction(
                             transactionData,
+                            logs.topics[l],
+                            transactionData.logs[k],
                             chainId
                           );
                           await storeNft(

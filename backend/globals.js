@@ -43,15 +43,6 @@ global.VALID_EVENTS = [
 global.VALID_EVENT_SIGNATURES = [];
 global.VALID_EVENT_SIGNATURE_NAMES = {};
 
-// (async function(){
-//     for (let index = 0; index <= VALID_CHAINS.length; index++) {
-//         global.VALID_EVENT_SIGNATURES[VALID_CHAINS[index]] = [];
-//         for (let k = 0; k < VALID_EVENTS.length; k++) {
-//             global.VALID_EVENT_SIGNATURES[VALID_CHAINS[index]].push(await encodeEventSignature(VALID_RPCS[VALID_CHAINS[index]], VALID_EVENTS[k]))
-//         }
-//     }
-// })()
-
 (async function () {
   for (let index = 0; index < VALID_EVENTS.length; index++) {
     const signature = await encodeEventSignature(

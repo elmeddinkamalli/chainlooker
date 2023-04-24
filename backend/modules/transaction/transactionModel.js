@@ -18,6 +18,14 @@ const transactionModelSchema = new Schema(
       type: Number,
       default: 0,
     },
+    topics: {
+      type: String,
+      lowercase: true,
+    },
+    logs: {
+      type: String,
+      default: null,
+    },
     data: {
       type: String,
       default: null,
